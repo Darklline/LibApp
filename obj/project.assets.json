@@ -8489,19 +8489,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Marcin\\.nuget\\packages\\": {}
+    "C:\\Users\\Darklline\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Marcin\\Desktop\\GIT\\LibApp_Gr5\\LibApp\\LibApp.csproj",
+      "projectUniqueName": "C:\\Users\\Darklline\\Desktop\\ProjektSemestralnyAsp\\LibApp\\LibApp.csproj",
       "projectName": "LibApp",
-      "projectPath": "C:\\Users\\Marcin\\Desktop\\GIT\\LibApp_Gr5\\LibApp\\LibApp.csproj",
-      "packagesPath": "C:\\Users\\Marcin\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Marcin\\Desktop\\GIT\\LibApp_Gr5\\LibApp\\obj\\",
+      "projectPath": "C:\\Users\\Darklline\\Desktop\\ProjektSemestralnyAsp\\LibApp\\LibApp.csproj",
+      "packagesPath": "C:\\Users\\Darklline\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Darklline\\Desktop\\ProjektSemestralnyAsp\\LibApp\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Marcin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Darklline\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
