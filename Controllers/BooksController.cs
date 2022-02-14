@@ -67,6 +67,17 @@ namespace LibApp.Controllers
         [HttpPost]
         public IActionResult Save(Book book)
         {
+            var errorViewModel = new BookFormViewModel
+            {
+                Book = book,
+                Genres = _genreRepository.GetGenres()
+            };
+
+            if (!ModelState.IsValid)
+            {
+                return View("BookForm", errorViewModel);
+            }
+
             if (book.Id == 0)
             {
                 book.DateAdded = DateTime.Now;

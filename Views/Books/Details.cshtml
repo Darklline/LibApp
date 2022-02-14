@@ -8,7 +8,7 @@
 <ul>
     <li>Author Name: @Model.AuthorName</li>
     <li>Genre: @Model.Genre.Name</li>
-    <li>Release Date: @Model.ReleaseDate.ToShortDateString()</li>
+    <li>Release Date: @Model.ReleaseDate?.ToShortDateString()</li>
     <li>Date Added: @Model.DateAdded.ToShortDateString()</li>
     <li>Number in Stock: @Model.NumberInStock</li>
 </ul>
