@@ -28,6 +28,8 @@ namespace LibApp
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
+            services.AddHttpClient();
+            services.AddHttpContextAccessor();
             services.AddScoped<IBooksRepository, BooksRepository>();
             services.AddScoped<IGenreRepository, GenreRepository>();
 

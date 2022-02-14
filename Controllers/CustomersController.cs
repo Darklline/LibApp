@@ -1,39 +1,51 @@
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using LibApp.Models;
 using LibApp.ViewModels;
-using LibApp.Data;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using LibApp.Data;
 
 namespace LibApp.Controllers
 {
     public class CustomersController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly HttpClient _httpClient;
+        private string _hostUrl;
 
-        public CustomersController(ApplicationDbContext context)
+        public CustomersController(HttpClient httpClient, IHttpContextAccessor contextAccessor, ApplicationDbContext context)
         {
             _context = context;
+            _httpClient = httpClient;
+            _hostUrl = $"{contextAccessor.HttpContext.Request.Scheme}://{contextAccessor.HttpContext.Request.Host}";
         }
 
         public ViewResult Index()
-        {         
+        {
             return View();
         }
 
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var customer = _context.Customers
-                .Include(c => c.MembershipType)
-                .SingleOrDefault(c => c.Id == id);
+            using var client = new HttpClient();
 
-            if (customer == null)
+            var result = await client.GetAsync($"{_hostUrl}/api/customers/{id}");
+            
+            result.EnsureSuccessStatusCode();
+
+            var content = await result.Content.ReadAsStringAsync();
+
+            if ( content == null)
             {
                 return Content("User not found");
             }
+
+            var customer = JsonConvert.DeserializeObject<Customer>(content);
 
             return View(customer);
         }
@@ -50,9 +62,23 @@ namespace LibApp.Controllers
             return View("CustomerForm", viewModel);
         }
 
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var customer = _context.Customers.SingleOrDefault(c => c.Id == id);
+            using var client = new HttpClient();
+
+            var result = await client.GetAsync($"{_hostUrl}/api/customers/{id}");
+
+            result.EnsureSuccessStatusCode();
+
+            var content = await result.Content.ReadAsStringAsync();
+
+            if (content == null)
+            {
+                return Content("User not found");
+            }
+
+            var customer = JsonConvert.DeserializeObject<Customer>(content);
+
             if (customer == null)
             {
                 return NotFound();
