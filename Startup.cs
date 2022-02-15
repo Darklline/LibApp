@@ -1,3 +1,4 @@
+using LibApp.Builders;
 using LibApp.Data;
 using LibApp.Repositories;
 using Microsoft.AspNetCore.Builder;
@@ -30,8 +31,12 @@ namespace LibApp
 
             services.AddHttpClient();
             services.AddHttpContextAccessor();
+
             services.AddScoped<IBooksRepository, BooksRepository>();
             services.AddScoped<IGenreRepository, GenreRepository>();
+            services.AddScoped<IMembershipTypesRepository, MembershipTypesRepository>();
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<IApiUrlBuilder, ApiUrlBuilder>();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

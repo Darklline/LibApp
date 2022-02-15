@@ -2,11 +2,9 @@
 using LibApp.Data;
 using LibApp.Dtos;
 using LibApp.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -42,7 +40,7 @@ namespace LibApp.Controllers.Api
 
 
         // GET /api/customers/{id}
-        [HttpGet("{id}", Name ="GetCustomer")]
+        [HttpGet("{id}", Name = "GetCustomer")]
         public async Task<IActionResult> GetCustomer(int id)
         {
             Console.WriteLine("Request beginning");
@@ -50,7 +48,7 @@ namespace LibApp.Controllers.Api
             await Task.Delay(2000);
             if (customer == null)
             {
-                throw new HttpResponseException(System.Net.HttpStatusCode.NotFound);
+                return NotFound();
             }
 
             Console.WriteLine("Request end");
@@ -70,7 +68,7 @@ namespace LibApp.Controllers.Api
             _context.Customers.Add(customer);
             _context.SaveChanges();
             customerDto.Id = customer.Id;
-        
+
             return CreatedAtRoute(nameof(GetCustomer), new { id = customerDto.Id }, customerDto);
         }
 

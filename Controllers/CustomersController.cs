@@ -1,28 +1,29 @@
+using LibApp.Builders;
 using LibApp.Models;
+using LibApp.Repositories;
 using LibApp.ViewModels;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
-using LibApp.Data;
+using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace LibApp.Controllers
 {
     public class CustomersController : Controller
     {
-        private readonly ApplicationDbContext _context;
         private readonly HttpClient _httpClient;
-        private string _hostUrl;
+        private readonly IApiUrlBuilder _apiUrlBuilder;
+        private readonly IMembershipTypesRepository _membershipTypesRepository;
+        private readonly ICustomerRepository _customerRepository;
 
-        public CustomersController(HttpClient httpClient, IHttpContextAccessor contextAccessor, ApplicationDbContext context)
+        public CustomersController(HttpClient httpClient, IApiUrlBuilder apiUrlBuilder, IMembershipTypesRepository membershipTypesRepository, ICustomerRepository customerRepository)
         {
-            _context = context;
             _httpClient = httpClient;
-            _hostUrl = $"{contextAccessor.HttpContext.Request.Scheme}://{contextAccessor.HttpContext.Request.Host}";
+            _apiUrlBuilder = apiUrlBuilder;
+            _membershipTypesRepository = membershipTypesRepository;
+            _customerRepository = customerRepository;
         }
 
         public ViewResult Index()
@@ -32,17 +33,11 @@ namespace LibApp.Controllers
 
         public async Task<IActionResult> Details(int id)
         {
-            using var client = new HttpClient();
+            var content = await GetCustomerByIdContentAsString(id);
 
-            var result = await client.GetAsync($"{_hostUrl}/api/customers/{id}");
-            
-            result.EnsureSuccessStatusCode();
-
-            var content = await result.Content.ReadAsStringAsync();
-
-            if ( content == null)
+            if (content == null)
             {
-                return Content("User not found");
+                return Content("Customer not found");
             }
 
             var customer = JsonConvert.DeserializeObject<Customer>(content);
@@ -52,7 +47,7 @@ namespace LibApp.Controllers
 
         public IActionResult New()
         {
-            var membershipTypes = _context.MembershipTypes.ToList();
+            var membershipTypes = _membershipTypesRepository.GetMembershipTypes();
 
             var viewModel = new CustomerFormViewModel()
             {
@@ -64,29 +59,18 @@ namespace LibApp.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            using var client = new HttpClient();
-
-            var result = await client.GetAsync($"{_hostUrl}/api/customers/{id}");
-
-            result.EnsureSuccessStatusCode();
-
-            var content = await result.Content.ReadAsStringAsync();
+            var content = await GetCustomerByIdContentAsString(id);
 
             if (content == null)
             {
-                return Content("User not found");
+                return Content("Customer not found");
             }
 
             var customer = JsonConvert.DeserializeObject<Customer>(content);
 
-            if (customer == null)
-            {
-                return NotFound();
-            }
-
             var viewModel = new CustomerFormViewModel(customer)
             {
-                MembershipTypes = _context.MembershipTypes.ToList()
+                MembershipTypes = _membershipTypesRepository.GetMembershipTypes()
             };
 
             return View("CustomerForm", viewModel);
@@ -94,40 +78,41 @@ namespace LibApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Save(Customer customer)
+        public async Task<IActionResult> Save(Customer customer)
         {
             if (!ModelState.IsValid)
             {
                 var viewModel = new CustomerFormViewModel(customer)
                 {
-                    MembershipTypes = _context.MembershipTypes.ToList()
+                    MembershipTypes = _membershipTypesRepository.GetMembershipTypes()
                 };
 
                 return View("CustomerForm", viewModel);
             }
             if (customer.Id == 0)
             {
-                _context.Customers.Add(customer);
+                var stringContent = new StringContent(JsonConvert.SerializeObject(customer), Encoding.UTF8, "application/json");
+                await _httpClient.PostAsync(_apiUrlBuilder.BuildApiUrl("/api/customers"), stringContent);
             }
             else
             {
-                var customerInDb = _context.Customers.Single(c => c.Id == customer.Id);
-                customerInDb.Name = customer.Name;
-                customerInDb.Birthdate = customer.Birthdate;
-                customerInDb.MembershipTypeId = customer.MembershipTypeId;
-                customerInDb.HasNewsletterSubscribed = customer.HasNewsletterSubscribed;
-            }
-
-            try
-            {
-                _context.SaveChanges();
-            }
-            catch (DbUpdateException e)
-            {
-                Console.WriteLine(e);
+                var stringContent = new StringContent(JsonConvert.SerializeObject(customer), Encoding.UTF8, "application/json");
+                await _httpClient.PutAsync(_apiUrlBuilder.BuildApiUrl($"/api/customers/{customer.Id}"), stringContent);
             }
 
             return RedirectToAction("Index", "Customers");
+        }
+
+        private async Task<string> GetCustomerByIdContentAsString(int id)
+        {
+            var result = await _httpClient.GetAsync(_apiUrlBuilder.BuildApiUrl($"/api/customers/{id}"));
+
+            if (result.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+
+            return await result.Content.ReadAsStringAsync();
         }
     }
 }
