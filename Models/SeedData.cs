@@ -54,12 +54,12 @@ namespace LibApp.Models
             {
                 context.Customers.AddRange(
                 new Customer
-                    {
-                        Name = "Adam",
-                        HasNewsletterSubscribed = false,
-                        MembershipTypeId = 1,
-                        Birthdate = new DateTime(2000, 1, 1)
-                    },
+                {
+                    Name = "Adam",
+                    HasNewsletterSubscribed = false,
+                    MembershipTypeId = 1,
+                    Birthdate = new DateTime(2000, 1, 1)
+                },
                 new Customer
                 {
                     Name = "Jacek",
@@ -73,7 +73,7 @@ namespace LibApp.Models
                     HasNewsletterSubscribed = false,
                     MembershipTypeId = 3,
                     Birthdate = new DateTime(2002, 1, 1)
-                });
+                }) ;
             }
 
             if(!context.Books.Any())

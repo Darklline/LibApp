@@ -55,6 +55,12 @@ namespace LibApp.Controllers.Api
             return Ok(_mapper.Map<CustomerDto>(customer));
         }
 
+        [HttpGet("details/{id}")]
+        public IActionResult GetCustomerDetails(int id)
+        {
+            return Redirect("https://localhost:5001/customers/details/" + id);
+        }
+
         // POST /api/customers
         [HttpPost]
         public IActionResult CreateCustomer(CustomerDto customerDto)
