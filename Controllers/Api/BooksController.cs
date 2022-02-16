@@ -15,6 +15,8 @@ namespace LibApp.Controllers.Api
     [ApiController]
     public class BooksController : ControllerBase
     {
+        private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
         public BooksController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
@@ -25,6 +27,11 @@ namespace LibApp.Controllers.Api
         public IEnumerable<BookDto> GetBooks(string query = null) 
         {
             var booksQuery = _context.Books.Where(b => b.NumberAvailable > 0);
+            var genres = _context.Genre.ToList();
+            foreach(var book in booksQuery)
+            {
+                book.Genre = genres.Where(g => g.Id == book.GenreId).SingleOrDefault();
+            }
 
             if (!String.IsNullOrWhiteSpace(query))
             {
@@ -34,7 +41,10 @@ namespace LibApp.Controllers.Api
             return booksQuery.ToList().Select(_mapper.Map<Book, BookDto>);
         }
 
-        private readonly ApplicationDbContext _context;
-        private readonly IMapper _mapper;
+        [HttpGet("details/{id}")]
+        public IActionResult GetCustomerDetails(int id)
+        {
+            return Redirect("https://localhost:5001/books/details/" + id);
+        }
     }
 }
