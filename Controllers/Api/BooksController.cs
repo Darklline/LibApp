@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
-using LibApp.Data;
 using LibApp.Dtos;
 using LibApp.Models;
+using LibApp.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 
@@ -16,39 +15,33 @@ namespace LibApp.Controllers.Api
     [ApiController]
     public class BooksController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+
+
+        private readonly IBooksRepository _booksRepository;
         private readonly IMapper _mapper;
-        public BooksController(ApplicationDbContext context, IMapper mapper)
+        public BooksController(IBooksRepository booksRepository, IMapper mapper)
         {
-            _context = context;
+            _booksRepository = booksRepository;
             _mapper = mapper;
         }
 
         [HttpGet]
         [Authorize(Roles = "Owner, StoreManager, User")]
-        public IEnumerable<BookDto> GetBooks(string query = null)
+        public ActionResult<IEnumerable<BookDto>> GetBooks()
         {
-            var booksQuery = _context.Books.Where(b => b.NumberAvailable > 0);
-            var genres = _context.Genre.ToList();
-            foreach (var book in booksQuery)
-            {
-                book.Genre = genres.Where(g => g.Id == book.GenreId).SingleOrDefault();
-            }
+            var books = _booksRepository.GetBooksWithGenre();
 
-            if (!String.IsNullOrWhiteSpace(query))
-            {
-                booksQuery = booksQuery.Where(b => b.Name.Contains(query));
-            }
 
-            return booksQuery.ToList().Select(_mapper.Map<Book, BookDto>);
+            return Ok(_mapper.Map<IEnumerable<BookDto>>(books));
         }
 
         [HttpGet("details/{id}")]
         [Authorize(Roles = "Owner, StoreManager, User")]
-        public IActionResult GetCustomerDetails(int id)
+        public IActionResult GetBookDetails(int id)
         {
             return Redirect("https://localhost:5001/books/details/" + id);
         }
+
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "Owner, StoreManager")]
@@ -56,7 +49,8 @@ namespace LibApp.Controllers.Api
         {
             try
             {
-                _context.Books.Remove(new Book { Id = id });
+                _booksRepository.RemoveBook(id);
+                _booksRepository.SaveChanges();
                 return Ok();
             }
             catch (Exception e)
@@ -64,6 +58,7 @@ namespace LibApp.Controllers.Api
                 Console.WriteLine(e);
                 throw new HttpRequestException(e.Message, e, HttpStatusCode.BadRequest);
             }
+
         }
     }
 }

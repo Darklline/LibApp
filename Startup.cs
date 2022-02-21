@@ -43,6 +43,7 @@ namespace LibApp
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddControllersWithViews();
@@ -77,7 +78,7 @@ namespace LibApp
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
-            //CreateRoles(serviceProvider).Wait();
+            CreateRoles(serviceProvider).Wait();
         }
 
         private async Task CreateRoles(IServiceProvider serviceProvider)
@@ -106,7 +107,7 @@ namespace LibApp
                 user.UserName = userRole + "@mail.com";
                 user.EmailConfirmed = true;
 
-                string userPWD = "Password@1234";
+                string userPWD = "Pwd123!";
 
                 var _user = await UserManager.FindByEmailAsync(userRole + "@mail.com");
 

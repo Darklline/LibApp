@@ -11,5 +11,6 @@ namespace LibApp.Repositories
         public Book GetBook(int id);
         IEnumerable<Book> GetBooksWithGenre();
         Book GetBookWithGenre(int id);
+        void RemoveBook(int id);
     }
 }

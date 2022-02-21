@@ -13,6 +13,7 @@ namespace LibApp.Models
             using var context = new ApplicationDbContext(
                 serviceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>());
 
+
             if (!context.MembershipTypes.Any())
             {
                 context.MembershipTypes.AddRange(
@@ -84,18 +85,27 @@ namespace LibApp.Models
                         Name = "Lord of the rings",
                         AuthorName = "J.R.R. Tolkien",
                         GenreId = 1,
+                        ReleaseDate = new DateTime(2000, 10, 10),
+                        NumberAvailable = 3,
+                        NumberInStock = 3,
                     },
                     new Book
                     {
                         Name = "Eragon",
                         AuthorName = "Christopher Palaoni",
-                        GenreId = 1,
+                        GenreId = 3,
+                        ReleaseDate = new DateTime(2000, 10, 10),
+                        NumberAvailable = 3,
+                        NumberInStock = 3,
                     },
                     new Book
                     {
                         Name = "Wesele",
                         AuthorName = "Stanislaw Wyspianski",
-                        GenreId = 2,
+                        GenreId = 5,
+                        ReleaseDate = new DateTime(2000,10,10),
+                        NumberAvailable = 3,
+                        NumberInStock = 3,
                     }
                     );
             }

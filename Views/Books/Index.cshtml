@@ -7,70 +7,74 @@
 
 <h2>Books</h2>
 
-@if (User.IsInRole("StoreManager") || User.IsInRole("Owner"))
+@if (User.IsInRole("Owner") || User.IsInRole("StoreManager"))
 {
     <p>
-    <a class="btn btn-primary" asp-action="New">New Book</a>
-</p>
+        <a class="btn btn-primary" asp-action="New">New Book</a>
+    </p>
 }
-
-
 <table id="books" class="table table-bordered table-hover">
     <thead>
     <tr>
         <th>Book</th>
-        <th colspan="2">Genre</th>
-    </tr>
+        <th>Genre</th>
+        @if (User.IsInRole("Owner") || User.IsInRole("StoreManager"))
+            {
+                <th>Delete</th>
+            }
+        </tr>
     </thead>
     <tbody>
     </tbody>
 </table>
 
-@section Scripts{
+@section Scripts 
+{
     <script>
         $(document).ready(function () {
             $("#books").DataTable({
                 ajax: {
-                    url: "api/books",
+                    url: "api/books/",
                     dataSrc: ""
                 },
                 columns: [
                     {
                         data: "name",
                         render: function (data, type, book) {
-                            return "<a href='books/details/" + book.id + "'>" + book.name + "</a>";
+                            return "<a href='api/books/details/" + book.id + "'>" + book.name + "</a>";
                         }
                     },
                     {
                         data: "genre.name"
                     },
+                    
                     @if (User.IsInRole("Owner") || User.IsInRole("StoreManager"))
                     {
                         <text>
                     {
-
+                        
                         data: "id",
                         render: function (data, book) {
-
+                            
                                 return "<button class='btn btn-secondary js-delete' data-books-id=" + data + ">Delete</button>";
-
+                                
                         }
-                    }
-                    </text>
+                    }   
+                    </text>    
                     }
                 ]
             });
         });
     </script>
-        <script>
+
+     <script>
         $(document).ready(function () {
             var table = $("#books").DataTable();
             $("#books").on("click", ".js-delete", function () {
-
+                 
                 var button = $(this);
-                console.log("ID: " + button.attr("data-books-id"));
                 bootbox.confirm({
-                    message: "Confirm books deletion?",
+                    message: "This action cannot be undone, are you sure?",
                     buttons: {
                         confirm: {
                             label: 'Yes',
@@ -101,4 +105,5 @@
             });
         });
     </script>
+
 }

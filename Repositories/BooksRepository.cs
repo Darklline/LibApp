@@ -48,5 +48,10 @@ namespace LibApp.Repositories
         {
             _context.SaveChanges();
         }
+
+        public void RemoveBook(int id)
+        {
+            _context.Remove(GetBook(id));
+        }
     }
 }
