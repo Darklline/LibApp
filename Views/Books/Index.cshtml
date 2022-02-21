@@ -7,9 +7,13 @@
 
 <h2>Books</h2>
 
-<p>
+@if (User.IsInRole("StoreManager") || User.IsInRole("Owner"))
+{
+    <p>
     <a class="btn btn-primary" asp-action="New">New Book</a>
 </p>
+}
+
 
 <table id="books" class="table table-bordered table-hover">
     <thead>
@@ -23,24 +27,77 @@
 </table>
 
 @section Scripts{
-        <script>
+    <script>
         $(document).ready(function () {
             $("#books").DataTable({
                 ajax: {
-                    url: "api/books/",
+                    url: "api/books",
                     dataSrc: ""
                 },
                 columns: [
                     {
                         data: "name",
                         render: function (data, type, book) {
-                            return "<a href='api/books/details/" + book.id + "'>" + book.name + "</a>";
+                            return "<a href='books/details/" + book.id + "'>" + book.name + "</a>";
                         }
                     },
                     {
                         data: "genre.name"
                     },
+                    @if (User.IsInRole("Owner") || User.IsInRole("StoreManager"))
+                    {
+                        <text>
+                    {
+
+                        data: "id",
+                        render: function (data, book) {
+
+                                return "<button class='btn btn-secondary js-delete' data-books-id=" + data + ">Delete</button>";
+
+                        }
+                    }
+                    </text>
+                    }
                 ]
+            });
+        });
+    </script>
+        <script>
+        $(document).ready(function () {
+            var table = $("#books").DataTable();
+            $("#books").on("click", ".js-delete", function () {
+
+                var button = $(this);
+                console.log("ID: " + button.attr("data-books-id"));
+                bootbox.confirm({
+                    message: "Confirm books deletion?",
+                    buttons: {
+                        confirm: {
+                            label: 'Yes',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: 'No',
+                            className: 'btn-danger'
+                        }
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            $.ajax({
+                                url: "/api/books/" + button.attr("data-books-id"),
+                                method: "DELETE",
+                                success: function () {
+                                    table.row(button.parents("tr")).remove().draw();
+                                },
+                                error: function (request, status, error) {
+                                    bootbox.alert({
+                                    message: "Access denied",
+                                    })
+                                }
+                            });
+                        }
+                    }
+                });
             });
         });
     </script>

@@ -5,16 +5,22 @@
 
 <h2>Customers</h2>
 
-<p>
-    <a class="btn btn-primary" asp-action="New">New Customer</a>
-</p>
+@if (User.IsInRole("Owner"))
+{
+    <p>
+        <a class="btn btn-primary" asp-action="New">New Customer</a>
+    </p>
+}
 
 <table id="customers" class="table table-hover">
     <thead>
         <tr>
             <th>Customer</th>
             <th>Discount Rate</th>
-            <th>Delete</th>
+            @if (User.IsInRole("Owner"))
+                {
+                    <th>Delete</th>
+                }
         </tr>
     </thead>
     <tbody>

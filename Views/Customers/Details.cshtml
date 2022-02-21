@@ -13,4 +13,8 @@
         <li>Birthdate: @Model.Birthdate.Value.ToShortDateString()</li>
     }
 </ul>
-<a href="https://localhost:5001/customers/edit/@Model.Id">Edit</a>
+@if (User.IsInRole("Owner"))
+{
+    <a href="https://localhost:5001/customers/edit/@Model.Id">Edit</a>
+}
+

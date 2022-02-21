@@ -2,12 +2,13 @@
 using LibApp.Data;
 using LibApp.Dtos;
 using LibApp.Models;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Net;
+using System.Net.Http;
 
 namespace LibApp.Controllers.Api
 {
@@ -24,11 +25,12 @@ namespace LibApp.Controllers.Api
         }
 
         [HttpGet]
-        public IEnumerable<BookDto> GetBooks(string query = null) 
+        [Authorize(Roles = "Owner, StoreManager, User")]
+        public IEnumerable<BookDto> GetBooks(string query = null)
         {
             var booksQuery = _context.Books.Where(b => b.NumberAvailable > 0);
             var genres = _context.Genre.ToList();
-            foreach(var book in booksQuery)
+            foreach (var book in booksQuery)
             {
                 book.Genre = genres.Where(g => g.Id == book.GenreId).SingleOrDefault();
             }
@@ -42,9 +44,26 @@ namespace LibApp.Controllers.Api
         }
 
         [HttpGet("details/{id}")]
+        [Authorize(Roles = "Owner, StoreManager, User")]
         public IActionResult GetCustomerDetails(int id)
         {
             return Redirect("https://localhost:5001/books/details/" + id);
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Owner, StoreManager")]
+        public ActionResult<Book> RemoveBook(int id)
+        {
+            try
+            {
+                _context.Books.Remove(new Book { Id = id });
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw new HttpRequestException(e.Message, e, HttpStatusCode.BadRequest);
+            }
         }
     }
 }

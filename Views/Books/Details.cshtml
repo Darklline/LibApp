@@ -12,4 +12,8 @@
     <li>Date Added: @Model.DateAdded.ToShortDateString()</li>
     <li>Number in Stock: @Model.NumberInStock</li>
 </ul>
-<a href="https://localhost:5001/books/edit/@Model.Id">Edit</a>
+@if (User.IsInRole("StoreManager") || User.IsInRole("Owner"))
+{
+    <a href="https://localhost:5001/books/edit/@Model.Id">Edit</a>
+}
+
